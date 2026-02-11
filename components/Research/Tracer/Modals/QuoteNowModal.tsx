@@ -48,7 +48,9 @@ const QuoteNowModal: React.FC<QuoteNowModalProps> = ({ item, onClose, onSave }) 
     setStage('processing');
     
     try {
-      const data = await extractTracerQuotes(item.id, query);
+      // FIX: Pass extractedJsonId and storageNodeUrl directly to service
+      const data = await extractTracerQuotes(item.id, query, item.extractedJsonId, item.storageNodeUrl);
+      
       // HARDENED VALIDATION: Ensure data is a non-empty array
       if (data && Array.isArray(data) && data.length > 0) {
         setResults(data.map(q => ({ ...q, lang: 'en', isSelected: true })));
@@ -237,5 +239,6 @@ const QuoteNowModal: React.FC<QuoteNowModalProps> = ({ item, onClose, onSave }) 
     </div>
   );
 };
+
 
 export default QuoteNowModal;
