@@ -1,6 +1,5 @@
 
 
-
 import { TracerProject, TracerLog, TracerReference, TracerTodo, TracerFinanceItem, TracerFinanceContent, GASResponse, TracerLogContent, TracerReferenceContent } from '../types';
 import { GAS_WEB_APP_URL } from '../constants';
 import { 
@@ -317,7 +316,8 @@ export const deleteTracerFinance = async (id: string): Promise<GASResponse<any>>
 
 // --- AI TRACER PROXIES (Passthrough to GAS) ---
 
-export const extractTracerQuotes = async (collectionId: string, contextQuery: string): Promise<Array<{ originalText: string; enhancedText: string }> | null> => {
+// Updated: Accepts fileId and nodeUrl directly to bypass Sheet Lookup
+export const extractTracerQuotes = async (collectionId: string, contextQuery: string, extractedJsonId?: string, nodeUrl?: string): Promise<Array<{ originalText: string; enhancedText: string }> | null> => {
   if (!GAS_WEB_APP_URL) return null;
   try {
     const res = await fetch(GAS_WEB_APP_URL, {
@@ -325,7 +325,12 @@ export const extractTracerQuotes = async (collectionId: string, contextQuery: st
       body: JSON.stringify({ 
         action: 'aiTracerProxy', 
         subAction: 'extractQuote', 
-        payload: { collectionId, contextQuery } 
+        payload: { 
+           collectionId, 
+           contextQuery,
+           extractedJsonId, // Directly pass file ID
+           nodeUrl          // Directly pass Node URL
+        } 
       })
     });
     const result = await res.json();
