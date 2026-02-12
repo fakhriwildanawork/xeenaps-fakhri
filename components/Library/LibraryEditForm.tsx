@@ -160,7 +160,7 @@ const LibraryEditForm: React.FC<LibraryEditFormProps> = ({ onComplete, items = [
       setIsLoadingItem(false);
     } else if (items.length > 0) {
       showXeenapsAlert({ icon: 'error', title: 'NOT FOUND', text: 'Collection item not found in local library.' });
-      navigate('/');
+      navigate('/library');
     }
   }, [id, items, navigate]);
 
@@ -207,7 +207,7 @@ const LibraryEditForm: React.FC<LibraryEditFormProps> = ({ onComplete, items = [
         // BROADCAST UPDATE
         window.dispatchEvent(new CustomEvent('xeenaps-library-updated', { detail: updatedItem }));
         onComplete(); 
-        navigate('/', { state: { openItem: updatedItem }, replace: true }); 
+        navigate('/library', { state: { openItem: updatedItem }, replace: true }); 
         showXeenapsToast('success', 'Update successful');
       } else {
         showXeenapsAlert({ icon: 'error', title: 'UPDATE FAILED', text: 'Supabase synchronization failed.' });
@@ -252,7 +252,7 @@ const LibraryEditForm: React.FC<LibraryEditFormProps> = ({ onComplete, items = [
     <FormPageContainer>
       <FormStickyHeader title="Update Collection" subtitle="Refining your collection" onBack={() => {
         const item = items.find(i => i.id === id);
-        navigate('/', { state: { openItem: item }, replace: true });
+        navigate('/library', { state: { openItem: item }, replace: true });
       }} />
       <FormContentArea>
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -301,7 +301,7 @@ const LibraryEditForm: React.FC<LibraryEditFormProps> = ({ onComplete, items = [
           <div className="pt-10 flex flex-col md:flex-row gap-4">
             <button type="button" onClick={() => {
               const item = items.find(i => i.id === id);
-              navigate('/', { state: { openItem: item }, replace: true });
+              navigate('/library', { state: { openItem: item }, replace: true });
             }} disabled={isSubmitting} className="w-full md:px-10 py-5 bg-gray-100 text-gray-400 rounded-[1.5rem] font-black text-sm uppercase">Cancel</button>
             <button type="submit" disabled={isSubmitting} className="w-full py-5 bg-[#004A74] text-white rounded-[1.5rem] font-black text-sm flex items-center justify-center gap-3 uppercase">{isSubmitting ? 'UPDATING DATA...' : <>Save Changes</>}</button>
           </div>
