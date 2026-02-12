@@ -1,3 +1,4 @@
+
 import { ConsultationItem, ConsultationAnswerContent } from '../types';
 import { GAS_WEB_APP_URL } from '../constants';
 import { 
@@ -29,7 +30,9 @@ export const fetchRelatedConsultations = async (
  */
 export const callAiConsult = async (
   collectionId: string,
-  question: string
+  question: string,
+  extractedJsonId: string,
+  nodeUrl: string
 ): Promise<{ answer: string, reasoning: string } | null> => {
   if (!GAS_WEB_APP_URL) return null;
   try {
@@ -38,7 +41,9 @@ export const callAiConsult = async (
       body: JSON.stringify({ 
         action: 'aiConsultProxy',
         collectionId,
-        question
+        question,
+        extractedJsonId,
+        nodeUrl
       })
     });
     const result = await res.json();
