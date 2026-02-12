@@ -573,13 +573,17 @@ const LibraryDetailView: React.FC<LibraryDetailViewProps> = ({ item, onClose, is
         onDeleteOptimistic(currentItem.id);
       }
       onClose();
-      navigate('/');
+      // Redirect to /library instead of / (Dashboard)
+      navigate('/library');
       showXeenapsToast('success', 'Processing Deletion...');
 
       try {
         // Fix: Call both GAS and Supabase delete services for consistency
         await deleteLibraryItem(currentItem.id);
         await deleteLibraryItemFromSupabase(currentItem.id);
+        
+        // ADDED: Dispatch event to notify App.tsx (Fixes Dashboard Stale Data)
+        window.dispatchEvent(new CustomEvent('xeenaps-library-deleted', { detail: currentItem.id }));
       } catch (e) {
         showXeenapsToast('error', 'Critical Error: Deletion failed on server');
         if (onRefresh) onRefresh();
