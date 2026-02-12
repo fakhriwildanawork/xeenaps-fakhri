@@ -28,7 +28,13 @@ const ConsultationInputModal: React.FC<ConsultationInputModalProps> = ({ collect
 
     setIsThinking(true);
     try {
-      const result = await callAiConsult(collection.id, question);
+      const result = await callAiConsult(
+        collection.id, 
+        question, 
+        collection.extractedJsonId || '', 
+        collection.storageNodeUrl || ''
+      );
+      
       if (result) {
         const newItem: ConsultationItem = {
           id: crypto.randomUUID(),
