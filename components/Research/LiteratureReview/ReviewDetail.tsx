@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 // @ts-ignore
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
@@ -200,7 +201,14 @@ const ReviewDetail: React.FC<ReviewDetailProps> = ({ libraryItems, isMobileSideb
     
     for (const lib of selectedLibs) {
       try {
-        const result = await runMatrixExtraction(lib.id, review.centralQuestion);
+        // UPDATED: Pass extractedJsonId and storageNodeUrl explicitly to Service
+        const result = await runMatrixExtraction(
+          lib.id, 
+          review.centralQuestion,
+          lib.extractedJsonId || "",
+          lib.storageNodeUrl || ""
+        );
+
         if (result) {
           const completedRow = {
             collectionId: lib.id,
