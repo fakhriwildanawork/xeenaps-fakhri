@@ -168,7 +168,12 @@ const ConsultationResultView: React.FC<ConsultationResultViewProps> = ({ collect
     showXeenapsToast('info', 'Re-architecting knowledge synthesis...');
 
     try {
-      const result = await callAiConsult(collection.id, targetQuestion);
+      const result = await callAiConsult(
+        collection.id, 
+        targetQuestion,
+        collection.extractedJsonId || '',
+        collection.storageNodeUrl || ''
+      );
       if (result) {
         setAnswerContent(result);
         
