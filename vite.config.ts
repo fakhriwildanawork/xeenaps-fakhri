@@ -10,7 +10,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'Xeenaps PKM',
+        name: 'Xeenaps',
         short_name: 'Xeenaps',
         description: 'A modern Personal Knowledge Management application',
         theme_color: '#FFFFFF',
