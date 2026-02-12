@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { TutorialItem } from '../../types';
 import { fetchTutorials } from '../../services/TutorialService';
@@ -86,7 +87,7 @@ const TutorialMain: React.FC = () => {
                   
                   {openCategories[category] && (
                     <div className="p-3 space-y-1 bg-white">
-                       {items.map(item => (
+                       {(items as TutorialItem[]).map(item => (
                          <div 
                            key={item.id}
                            onClick={() => handleOpenLink(item.link)}
