@@ -98,6 +98,7 @@ const TodoTab: React.FC<TodoTabProps> = ({ projectId, todos, setTodos, onRefresh
     if (await saveTracerTodo(data)) {
       // Trigger notification update (as new task might be urgent)
       window.dispatchEvent(new CustomEvent('xeenaps-notif-refresh'));
+      await onRefresh();
     }
   };
 
