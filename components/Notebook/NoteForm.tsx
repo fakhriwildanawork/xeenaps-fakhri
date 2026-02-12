@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { NoteItem, NoteContent, NoteAttachment, LibraryItem } from '../../types';
 import { saveNote, fetchNoteContent, uploadNoteAttachment } from '../../services/NoteService';
@@ -206,7 +207,7 @@ const NoteForm: React.FC<NoteFormProps> = ({ note, collectionId, onClose, onComp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!metadata.label.trim() || pendingUploadsCount > 0) return;
+    if (!metadata.label.trim() || pendingUploadsCount > 0 || isLoading) return;
 
     // Ensure Collection Title is populated
     let finalMetadata = { ...metadata, updatedAt: new Date().toISOString() };
@@ -236,7 +237,7 @@ const NoteForm: React.FC<NoteFormProps> = ({ note, collectionId, onClose, onComp
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (isLoading) return null;
+  // Removed blocking render (if (isLoading) return null;) to allow Immediate UI
 
   return (
     <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300">
@@ -265,90 +266,101 @@ const NoteForm: React.FC<NoteFormProps> = ({ note, collectionId, onClose, onComp
            </FormField>
 
            <FormField label="Description">
-              <RichEditor value={content.description} onChange={v => setContent({...content, description: v})} />
+              {isLoading ? (
+                <div className="h-[300px] w-full skeleton rounded-[2rem] border border-gray-100" />
+              ) : (
+                <RichEditor value={content.description} onChange={v => setContent({...content, description: v})} />
+              )}
            </FormField>
 
            <div className="space-y-6 pt-6 border-t border-gray-100">
               <div className="flex items-center justify-between px-2">
                  <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 flex items-center gap-2"><Paperclip size={14} /> Attachments</h3>
                  <div className="flex gap-2">
-                    <button type="button" onClick={handleAddLink} className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-[#004A74] hover:bg-gray-50 shadow-sm transition-all"><LinkIcon size={12} /> Add Link</button>
-                    <label className="flex items-center gap-1.5 px-4 py-2 bg-[#004A74] text-white rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-[#003859] shadow-md transition-all">
+                    <button type="button" onClick={handleAddLink} disabled={isLoading} className={`flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-[#004A74] hover:bg-gray-50 shadow-sm transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}><LinkIcon size={12} /> Add Link</button>
+                    <label className={`flex items-center gap-1.5 px-4 py-2 bg-[#004A74] text-white rounded-xl text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-[#003859] shadow-md transition-all ${isLoading ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}>
                        <Plus size={12} /> Attach File
-                       <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleFileSelect} />
+                       <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleFileSelect} disabled={isLoading} />
                     </label>
                  </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 {content.attachments.map((at, idx) => {
-                    const isPending = at.fileId?.startsWith('pending_');
-                    const isImage = at.mimeType?.startsWith('image/') || at.url?.includes('lh3.googleusercontent');
+                 {isLoading ? (
+                    <>
+                      <div className="h-24 w-full skeleton rounded-2xl" />
+                      <div className="h-24 w-full skeleton rounded-2xl" />
+                    </>
+                 ) : (
+                   content.attachments.map((at, idx) => {
+                      const isPending = at.fileId?.startsWith('pending_');
+                      const isImage = at.mimeType?.startsWith('image/') || at.url?.includes('lh3.googleusercontent');
 
-                    return (
-                      <div key={idx} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-4 group animate-in slide-in-from-bottom-2 relative overflow-hidden">
-                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-[#004A74]/30 shadow-sm overflow-hidden shrink-0 relative">
-                            {isImage ? (
-                               <img src={at.url} className="w-full h-full object-cover" />
-                            ) : at.type === 'LINK' ? (
-                               <Globe size={18} />
-                            ) : (
-                               <FileIcon size={18} />
-                            )}
-                            {isPending && (
-                              <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
-                                <Loader2 size={16} className="text-[#004A74] animate-spin" />
-                              </div>
-                            )}
-                        </div>
-                        <div className="flex-1 min-w-0 space-y-1">
-                            <input 
-                              className="w-full bg-transparent border-none p-0 text-[10px] font-black text-[#004A74] uppercase outline-none"
-                              placeholder="LABEL..."
-                              value={at.label}
-                              onChange={e => {
-                                const newAt = [...content.attachments];
-                                newAt[idx].label = e.target.value;
-                                setContent({...content, attachments: newAt});
-                              }}
-                            />
-                            {at.type === 'LINK' ? (
+                      return (
+                        <div key={idx} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-4 group animate-in slide-in-from-bottom-2 relative overflow-hidden">
+                          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-[#004A74]/30 shadow-sm overflow-hidden shrink-0 relative">
+                              {isImage ? (
+                                 <img src={at.url} className="w-full h-full object-cover" />
+                              ) : at.type === 'LINK' ? (
+                                 <Globe size={18} />
+                              ) : (
+                                 <FileIcon size={18} />
+                              )}
+                              {isPending && (
+                                <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
+                                  <Loader2 size={16} className="text-[#004A74] animate-spin" />
+                                </div>
+                              )}
+                          </div>
+                          <div className="flex-1 min-w-0 space-y-1">
                               <input 
-                                className="w-full bg-transparent border-none p-0 text-[9px] font-medium text-blue-500 underline outline-none"
-                                placeholder="https://..."
-                                value={at.url}
+                                className="w-full bg-transparent border-none p-0 text-[10px] font-black text-[#004A74] uppercase outline-none"
+                                placeholder="LABEL..."
+                                value={at.label}
                                 onChange={e => {
                                   const newAt = [...content.attachments];
-                                  newAt[idx].url = e.target.value;
+                                  newAt[idx].label = e.target.value;
                                   setContent({...content, attachments: newAt});
                                 }}
                               />
-                            ) : (
-                               <div className="flex items-center justify-between pr-2">
-                                  <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">{at.type}</span>
-                               </div>
-                            )}
+                              {at.type === 'LINK' ? (
+                                <input 
+                                  className="w-full bg-transparent border-none p-0 text-[9px] font-medium text-blue-500 underline outline-none"
+                                  placeholder="https://..."
+                                  value={at.url}
+                                  onChange={e => {
+                                    const newAt = [...content.attachments];
+                                    newAt[idx].url = e.target.value;
+                                    setContent({...content, attachments: newAt});
+                                  }}
+                                />
+                              ) : (
+                                 <div className="flex items-center justify-between pr-2">
+                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">{at.type}</span>
+                                 </div>
+                              )}
+                          </div>
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              setContent({...content, attachments: content.attachments.filter((_, i) => i !== idx)});
+                            }}
+                            className="p-2 text-red-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
+                          >
+                             <Trash2 size={16} />
+                          </button>
                         </div>
-                        <button 
-                          type="button" 
-                          onClick={() => {
-                            setContent({...content, attachments: content.attachments.filter((_, i) => i !== idx)});
-                          }}
-                          className="p-2 text-red-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
-                        >
-                           <Trash2 size={16} />
-                        </button>
-                      </div>
-                    );
-                 })}
+                      );
+                   })
+                 )}
               </div>
            </div>
 
            <div className="pt-10 flex justify-end">
               <button 
                 type="submit" 
-                disabled={isSubmitting || !metadata.label.trim() || pendingUploadsCount > 0}
-                className={`w-full md:w-auto px-12 py-5 bg-[#004A74] text-[#FED400] rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-2xl transition-all flex items-center justify-center gap-3 ${isSubmitting || pendingUploadsCount > 0 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+                disabled={isSubmitting || !metadata.label.trim() || pendingUploadsCount > 0 || isLoading}
+                className={`w-full md:w-auto px-12 py-5 bg-[#004A74] text-[#FED400] rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-2xl transition-all flex items-center justify-center gap-3 ${isSubmitting || pendingUploadsCount > 0 || isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
               >
                  {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                  {isSubmitting ? 'SYNCHRONIZING...' : 'SAVE'}
