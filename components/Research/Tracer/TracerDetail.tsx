@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 // @ts-ignore - Resolving TS error for missing exported members
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
@@ -287,6 +284,10 @@ const TracerDetail: React.FC<{ libraryItems: LibraryItem[] }> = ({ libraryItems 
     await deleteTracerLog(logId);
   };
 
+  const handleUpdateReference = (updatedRef: TracerReference) => {
+    setReferences(prev => prev.map(r => r.id === updatedRef.id ? updatedRef : r));
+  };
+
   const handlePermanentDeleteProject = async () => {
     if (!project || isBusy) return;
     if (await showXeenapsDeleteConfirm(1)) {
@@ -555,6 +556,7 @@ const TracerDetail: React.FC<{ libraryItems: LibraryItem[] }> = ({ libraryItems 
                reopenedRef={initialReopenRef}
                onOpenLibrary={handleOpenLibraryFromRef}
                onClearReopenRef={handleClearReopenRef}
+               onUpdateReference={handleUpdateReference}
              />
           )}
           {activeTab === 'finance' && <FinanceTab projectId={project.id} />}
