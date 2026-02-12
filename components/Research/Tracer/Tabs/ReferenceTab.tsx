@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { LibraryItem, TracerReference } from '../../../../types';
 import { linkTracerReference, unlinkTracerReference } from '../../../../services/TracerService';
@@ -24,9 +23,10 @@ interface ReferenceTabProps {
   reopenedRef?: (LibraryItem & { refRow: TracerReference }) | null;
   onOpenLibrary?: (item: LibraryItem, referenceContext: any) => void;
   onClearReopenRef?: () => void;
+  onUpdateReference?: (ref: TracerReference) => void;
 }
 
-const ReferenceTab: React.FC<ReferenceTabProps> = ({ projectId, libraryItems, references, setReferences, onRefresh, reopenedRef, onOpenLibrary, onClearReopenRef }) => {
+const ReferenceTab: React.FC<ReferenceTabProps> = ({ projectId, libraryItems, references, setReferences, onRefresh, reopenedRef, onOpenLibrary, onClearReopenRef, onUpdateReference }) => {
   const [selectedRef, setSelectedRef] = useState<LibraryItem & { refRow?: TracerReference } | null>(null);
   
   // State to track if the current view was restored from history (to disable slide animation)
@@ -121,6 +121,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({ projectId, libraryItems, re
               onOpenLibrary(lib, selectedRef);
             }
           }}
+          onUpdate={onUpdateReference}
         />
       )}
 
