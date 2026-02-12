@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 // @ts-ignore
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -624,7 +623,7 @@ const LibraryForm: React.FC<LibraryFormProps> = ({ onComplete, items = [] }) => 
         if (dbSuccess) {
           window.dispatchEvent(new CustomEvent('xeenaps-library-updated', { detail: patchedItem }));
           onComplete(); 
-          navigate('/', { state: { openItem: patchedItem }, replace: true }); 
+          navigate('/library', { state: { openItem: patchedItem }, replace: true }); 
         } else {
           showXeenapsAlert({ icon: 'error', title: 'REGISTRY FAILED', text: 'File saved in cloud, but metadata registry failed.' });
         }
@@ -738,7 +737,7 @@ const LibraryForm: React.FC<LibraryFormProps> = ({ onComplete, items = [] }) => 
         </div>
       )}
 
-      <FormStickyHeader title="Add Collection" subtitle="Expand your digital library" onBack={() => navigate('/')} rightElement={
+      <FormStickyHeader title="Add Collection" subtitle="Expand your digital library" onBack={() => navigate('/library')} rightElement={
         <div className="flex bg-gray-100/50 p-1.5 rounded-2xl gap-1 w-full md:w-auto">
           <button type="button" onClick={() => setMode('FILE')} disabled={isFormDisabled} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black transition-all ${formData.addMethod === 'FILE' ? 'bg-[#004A74] text-white shadow-lg' : 'text-gray-400 hover:text-[#004A74]'}`}><DocumentIcon className="w-4 h-4" /> FILE</button>
           <button type="button" onClick={() => setMode('LINK')} disabled={isFormDisabled} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black transition-all ${formData.addMethod === 'LINK' ? 'bg-[#004A74] text-white shadow-lg' : 'text-gray-400 hover:text-[#004A74]'}`}><LinkIcon className="w-4 h-4" /> LINK</button>
@@ -876,7 +875,7 @@ const LibraryForm: React.FC<LibraryFormProps> = ({ onComplete, items = [] }) => 
           </FormField>
 
           <div className="pt-10 flex flex-col md:flex-row gap-4">
-            <button type="button" onClick={() => navigate('/')} disabled={isFormDisabled} className="w-full md:px-10 py-5 bg-gray-100 text-gray-400 rounded-[1.5rem] font-black text-sm uppercase">Cancel</button>
+            <button type="button" onClick={() => navigate('/library')} disabled={isFormDisabled} className="w-full md:px-10 py-5 bg-gray-100 text-gray-400 rounded-[1.5rem] font-black text-sm uppercase">Cancel</button>
             <button type="submit" disabled={isFormDisabled} className="w-full py-5 bg-[#004A74] text-white rounded-[1.5rem] font-black text-sm flex items-center justify-center gap-3 uppercase">{isSubmitting ? 'REGISTERING...' : isExtracting ? 'ANALYZING...' : <> Register Item</>}</button>
           </div>
         </form>
