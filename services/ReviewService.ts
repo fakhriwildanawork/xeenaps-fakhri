@@ -1,3 +1,4 @@
+
 import { ReviewItem, ReviewContent, ReviewMatrixRow, GASResponse } from '../types';
 import { GAS_WEB_APP_URL } from '../constants';
 import { 
@@ -165,10 +166,13 @@ export const deleteReview = async (id: string): Promise<boolean> => {
 
 /**
  * AI Matrix Extraction: Memanggil proxy Groq khusus review
+ * UPDATED: Accepts file coordinates directly
  */
 export const runMatrixExtraction = async (
   collectionId: string, 
-  centralQuestion: string
+  centralQuestion: string,
+  extractedJsonId: string,
+  nodeUrl: string
 ): Promise<{ answer: string, verbatim: string } | null> => {
   if (!GAS_WEB_APP_URL) return null;
   try {
@@ -177,7 +181,12 @@ export const runMatrixExtraction = async (
       body: JSON.stringify({ 
         action: 'aiReviewProxy', 
         subAction: 'extract',
-        payload: { collectionId, centralQuestion }
+        payload: { 
+          collectionId, 
+          centralQuestion, 
+          extractedJsonId, 
+          nodeUrl 
+        }
       })
     });
     const result = await res.json();
