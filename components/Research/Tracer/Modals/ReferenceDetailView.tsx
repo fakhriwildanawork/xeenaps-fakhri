@@ -100,9 +100,10 @@ interface ReferenceDetailViewProps {
   onClose: () => void;
   onOpenLibrary?: (item: LibraryItem) => void;
   isRestored?: boolean; // New prop to control animation
+  onUpdate?: (ref: TracerReference) => void;
 }
 
-const ReferenceDetailView: React.FC<ReferenceDetailViewProps> = ({ item, refRow, onClose, onOpenLibrary, isRestored = false }) => {
+const ReferenceDetailView: React.FC<ReferenceDetailViewProps> = ({ item, refRow, onClose, onOpenLibrary, isRestored = false, onUpdate }) => {
   const navigate = useNavigate();
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [showCite, setShowCite] = useState(false);
@@ -150,11 +151,14 @@ const ReferenceDetailView: React.FC<ReferenceDetailViewProps> = ({ item, refRow,
     const result = await saveReferenceContent(localRefRow, newContent);
     if (result) {
         // ESSENTIAL: Update localRefRow
-        setLocalRefRow(prev => ({
-            ...prev,
+        const updatedRef = {
+            ...localRefRow,
             contentJsonId: result.contentJsonId,
-            storageNodeUrl: result.storageNodeUrl
-        }));
+            storageNodeUrl: result.storageNodeUrl,
+            quotes: newContent.quotes // Ensure quotes are synced in the object passed up
+        };
+        setLocalRefRow(updatedRef);
+        if (onUpdate) onUpdate(updatedRef);
     }
   };
 
@@ -359,7 +363,7 @@ const ReferenceDetailView: React.FC<ReferenceDetailViewProps> = ({ item, refRow,
                              <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2"><Quote size={12}/> Verbatim Source</span>
                              <button onClick={() => handleCopy(quote.originalText)} className="text-[8px] font-black text-[#004A74] uppercase hover:underline">Copy Verbatim</button>
                           </div>
-                          <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[11px] font-bold italic text-gray-400 leading-relaxed">
+                          <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-[10px] font-bold italic text-gray-400 leading-relaxed">
                              "{quote.originalText}"
                           </div>
                           <div className="flex items-center justify-between pt-2">
