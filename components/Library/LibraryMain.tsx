@@ -224,7 +224,12 @@ const LibraryMain: React.FC<LibraryMainProps> = ({ items, isLoading: isGlobalLoa
        // Cleanup physical files first (GAS)
        await deleteLibraryItem(id);
        // Cleanup registry (Supabase)
-       return await deleteLibraryItemFromSupabase(id);
+       const success = await deleteLibraryItemFromSupabase(id);
+       // DISPATCH EVENT: Notify App.tsx to update global state for Dashboard consistency
+       if (success) {
+         window.dispatchEvent(new CustomEvent('xeenaps-library-deleted', { detail: id }));
+       }
+       return success;
     }, () => {
       showXeenapsAlert({ icon: 'error', title: 'SYNC FAILED', text: 'Error deleting from server.' });
     });
