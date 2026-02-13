@@ -1,3 +1,4 @@
+
 import { BrainstormingItem, LibraryItem } from '../types';
 import { GAS_WEB_APP_URL } from '../constants';
 import { callAiProxy } from './gasService';
@@ -186,18 +187,27 @@ export const generateProposedAbstract = async (item: BrainstormingItem): Promise
 export const getExternalRecommendations = async (item: BrainstormingItem): Promise<string[]> => {
   if (!GAS_WEB_APP_URL) return [];
   try {
+    // SANITIZATION PAYLOAD: Ensure strictly valid array and strings
+    let cleanKeywords: string[] = [];
+    if (Array.isArray(item.keywords)) {
+      cleanKeywords = item.keywords.filter(k => k && typeof k === 'string' && k.trim() !== '');
+    }
+    
+    // Ensure title has fallback
+    const cleanTitle = item.proposedTitle || item.label || "";
+
     const res = await fetch(GAS_WEB_APP_URL, {
       method: 'POST',
       body: JSON.stringify({ 
         action: 'getBrainstormingRecommendations', 
-        keywords: item.keywords,
-        title: item.proposedTitle
+        keywords: cleanKeywords,
+        title: cleanTitle
       })
     });
     const result = await res.json();
-    // Return all 10 items from OpenAlex
     return result.status === 'success' ? (result.external || []) : [];
   } catch (error) {
+    console.error("Recommendation fetch failed:", error);
     return [];
   }
 };
