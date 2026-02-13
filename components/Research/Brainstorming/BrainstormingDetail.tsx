@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 // @ts-ignore
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
@@ -184,31 +183,15 @@ const BrainstormingDetail: React.FC<{ libraryItems: LibraryItem[] }> = ({ librar
 
   const handleFetchExternal = async () => {
     const keywords = ensureArray(item?.keywords);
-    // Allow search if Title exists even if keywords are empty
-    if (keywords.length === 0 && !item?.proposedTitle) {
-       showXeenapsToast('warning', 'Please define Keywords or Title first.');
-       return;
-    }
-    
+    if (keywords.length === 0) return;
     setIsFetchingExternal(true);
     showXeenapsToast('info', 'Searching External Benchmarks...');
-    
-    try {
-      const data = await getExternalRecommendations(item!);
-      
-      if (data && data.length > 0) {
-        const updatedItem = { ...item!, externalRefs: ensureArray(data) };
-        setItem(updatedItem);
-        handleSave(updatedItem);
-        showXeenapsToast('success', 'External Benchmarks Synchronized');
-      } else {
-        showXeenapsToast('warning', 'No external matches found for your keywords/title');
-      }
-    } catch (e) {
-      showXeenapsToast('error', 'Connection failed during search');
-    } finally {
-      setIsFetchingExternal(false);
-    }
+    const data = await getExternalRecommendations(item!);
+    const updatedItem = { ...item!, externalRefs: ensureArray(data) };
+    setItem(updatedItem);
+    handleSave(updatedItem);
+    setIsFetchingExternal(false);
+    showXeenapsToast('success', 'External Benchmarks Synchronized');
   };
 
   const handleFetchInternal = async () => {
