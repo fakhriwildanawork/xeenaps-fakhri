@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 // @ts-ignore
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
@@ -183,15 +184,28 @@ const BrainstormingDetail: React.FC<{ libraryItems: LibraryItem[] }> = ({ librar
 
   const handleFetchExternal = async () => {
     const keywords = ensureArray(item?.keywords);
-    if (keywords.length === 0) return;
+    if (keywords.length === 0) {
+      showXeenapsToast('warning', 'Please synthesize keywords first.');
+      return;
+    }
+    
     setIsFetchingExternal(true);
     showXeenapsToast('info', 'Searching External Benchmarks...');
+    
     const data = await getExternalRecommendations(item!);
-    const updatedItem = { ...item!, externalRefs: ensureArray(data) };
-    setItem(updatedItem);
-    handleSave(updatedItem);
+    
+    // UPDATED VALIDATION LOGIC: Only save if we actually found something
+    if (data && data.length > 0) {
+      const updatedItem = { ...item!, externalRefs: ensureArray(data) };
+      setItem(updatedItem);
+      handleSave(updatedItem);
+      showXeenapsToast('success', 'External Benchmarks Synchronized');
+    } else {
+      // Don't overwrite existing refs with empty array if search fails
+      showXeenapsToast('warning', 'No new matches found for current keywords.');
+    }
+    
     setIsFetchingExternal(false);
-    showXeenapsToast('success', 'External Benchmarks Synchronized');
   };
 
   const handleFetchInternal = async () => {
