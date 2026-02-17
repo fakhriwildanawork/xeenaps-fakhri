@@ -117,10 +117,19 @@ const CitationModal: React.FC<{ item: LibraryItem; onClose: () => void }> = ({ i
               
               <div className="space-y-2">
                  <div className="flex justify-between px-1">
-                    <span className="text-[9px] font-black text-gray-400 uppercase">In-Text</span>
+                    <span className="text-[9px] font-black text-gray-400 uppercase">In-Text (Parenthetical)</span>
                     <button onClick={() => copyToClipboard(editableParenthetical, false)} className="text-[#004A74] hover:scale-110 transition-transform"><Copy size={14} /></button>
                  </div>
                  <textarea value={editableParenthetical} onChange={e=>setEditableParenthetical(e.target.value)} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-[#004A74] outline-none" rows={2}/>
+              </div>
+
+              {/* FIX: Added Narrative Citation Field */}
+              <div className="space-y-2">
+                 <div className="flex justify-between px-1">
+                    <span className="text-[9px] font-black text-gray-400 uppercase">In-Text (Narrative)</span>
+                    <button onClick={() => copyToClipboard(editableNarrative, false)} className="text-[#004A74] hover:scale-110 transition-transform"><Copy size={14} /></button>
+                 </div>
+                 <textarea value={editableNarrative} onChange={e=>setEditableNarrative(e.target.value)} className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-bold text-[#004A74] outline-none" rows={2}/>
               </div>
               
               <div className="space-y-2">
