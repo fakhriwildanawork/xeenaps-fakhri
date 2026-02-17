@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+// @ts-ignore
 import { useNavigate } from 'react-router-dom';
 import { 
   Key, 
@@ -258,7 +259,7 @@ const ApiKeyManagerPage: React.FC = () => {
                         disabled={isProcessing || !newKey}
                         className="w-full md:w-auto px-8 py-3 bg-[#004A74] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
                       >
-                        {isProcessing ? null : null } Register
+                        {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus size={16} />} Register
                       </button>
                    </div>
 
