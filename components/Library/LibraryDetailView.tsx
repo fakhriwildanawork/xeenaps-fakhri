@@ -104,6 +104,8 @@ const CitationModal: React.FC<{
   const [editableParenthetical, setEditableParenthetical] = useState('');
   const [editableNarrative, setEditableNarrative] = useState('');
   const [editableBibliography, setEditableBibliography] = useState('');
+  
+  const bibRef = useRef<HTMLDivElement>(null);
 
   const styles = ['Harvard', 'APA 7th Edition', 'IEEE', 'Chicago', 'Vancouver', 'MLA 9th Edition'];
   const languages = ['English', 'Indonesian', 'French', 'German', 'Dutch'];
@@ -119,10 +121,35 @@ const CitationModal: React.FC<{
     }
     setIsGenerating(false);
   };
+  
+  // Sync innerHTML when results change (for contentEditable div)
+  useEffect(() => {
+    if (results && bibRef.current) {
+        bibRef.current.innerHTML = results.bibliography;
+    }
+  }, [results]);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    showXeenapsToast('success', 'Citation Copied!');
+  const copyToClipboard = (text: string, isHtml: boolean = false) => {
+    if (isHtml) {
+        const blobHtml = new Blob([text], { type: "text/html" });
+        const blobText = new Blob([text.replace(/<[^>]*>/g, '')], { type: "text/plain" });
+        try {
+            navigator.clipboard.write([
+                new ClipboardItem({
+                    "text/html": blobHtml,
+                    "text/plain": blobText,
+                })
+            ]);
+            showXeenapsToast('success', 'Rich Text Citation Copied!');
+        } catch (err) {
+            // Fallback for incompatible browsers
+            navigator.clipboard.writeText(text.replace(/<[^>]*>/g, ''));
+            showXeenapsToast('success', 'Citation Copied (Plain Text)!');
+        }
+    } else {
+        navigator.clipboard.writeText(text);
+        showXeenapsToast('success', 'Citation Copied!');
+    }
   };
 
   return (
@@ -195,7 +222,7 @@ const CitationModal: React.FC<{
               <div className="space-y-2">
                 <div className="flex items-center justify-between px-1">
                   <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">In-Text (Parenthetical)</span>
-                  <button onClick={() => copyToClipboard(editableParenthetical)} className="text-[#004A74] hover:scale-110 transition-transform"><DocumentDuplicateIcon className="w-4 h-4" /></button>
+                  <button onClick={() => copyToClipboard(editableParenthetical, false)} className="text-[#004A74] hover:scale-110 transition-transform"><DocumentDuplicateIcon className="w-4 h-4" /></button>
                 </div>
                 <textarea 
                   value={editableParenthetical}
@@ -208,7 +235,7 @@ const CitationModal: React.FC<{
               <div className="space-y-2">
                 <div className="flex items-center justify-between px-1">
                   <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">In Narrative Citation</span>
-                  <button onClick={() => copyToClipboard(editableNarrative)} className="text-[#004A74] hover:scale-110 transition-transform"><DocumentDuplicateIcon className="w-4 h-4" /></button>
+                  <button onClick={() => copyToClipboard(editableNarrative, false)} className="text-[#004A74] hover:scale-110 transition-transform"><DocumentDuplicateIcon className="w-4 h-4" /></button>
                 </div>
                 <textarea 
                   value={editableNarrative}
@@ -217,16 +244,18 @@ const CitationModal: React.FC<{
                 />
               </div>
 
-              {/* Bibliography */}
+              {/* Bibliography (Rich Text Support) */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between px-1">
-                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Bibliographic Citation</span>
-                  <button onClick={() => copyToClipboard(editableBibliography)} className="text-[#004A74] hover:scale-110 transition-transform"><DocumentDuplicateIcon className="w-4 h-4" /></button>
+                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Bibliographic Citation (Rich Text)</span>
+                  <button onClick={() => copyToClipboard(bibRef.current ? bibRef.current.innerHTML : editableBibliography, true)} className="text-[#004A74] hover:scale-110 transition-transform"><DocumentDuplicateIcon className="w-4 h-4" /></button>
                 </div>
-                <textarea 
-                  value={editableBibliography}
-                  onChange={(e) => setEditableBibliography(e.target.value)}
-                  className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-semibold text-[#004A74] leading-relaxed focus:bg-white transition-all outline-none resize-none min-h-[100px]"
+                <div
+                    contentEditable
+                    suppressContentEditableWarning
+                    ref={bibRef}
+                    className="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl text-xs font-semibold text-[#004A74] leading-relaxed focus:bg-white transition-all outline-none overflow-y-auto min-h-[100px]"
+                    onInput={(e) => setEditableBibliography(e.currentTarget.innerHTML)}
                 />
               </div>
             </div>
