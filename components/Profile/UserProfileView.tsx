@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+// @ts-ignore
 import { useNavigate } from 'react-router-dom';
 import { UserProfile, EducationEntry, CareerEntry } from '../../types';
 import { 
